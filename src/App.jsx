@@ -73,6 +73,7 @@ const STATIC_PARTICLES = [
 
 const NAV_ITEMS = [
   { label: "Platform", target: "platform" },
+  { label: "How It Works", target: "how-it-works" },
   { label: "Mission", target: "mission" },
   { label: "Impact", target: "impact" },
   { label: "Vision", target: "vision" }
@@ -665,7 +666,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section style={{ padding: "100px max(24px, calc((100% - 1200px)/2))", position: "relative" }}>
+    <section id="how-it-works" style={{ padding: "100px max(24px, calc((100% - 1200px)/2))", position: "relative", scrollMarginTop: 90 }}>
       <style>{`
         @keyframes wifi-wave { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
         @keyframes led-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
