@@ -71,6 +71,17 @@ const STATIC_PARTICLES = [
   { id: 23, x: 31.0, y: 92.5, size: 1.2, delay: 2.5, dur: 10.6, color: "#00b4ff" }
 ];
 
+const NAV_ITEMS = [
+  { label: "Platform", target: "platform" },
+  { label: "Mission", target: "mission" },
+  { label: "Impact", target: "impact" },
+  { label: "Vision", target: "vision" }
+];
+
+function scrollToSection(target) {
+  document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function Particles() {
   return (
     <>
@@ -90,8 +101,23 @@ function Particles() {
 // ─── Navbar ─────────────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("platform");
+
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40);
+    const fn = () => {
+      setScrolled(window.scrollY > 40);
+
+      const current = NAV_ITEMS.reduce((active, item) => {
+        const section = document.getElementById(item.target);
+        if (!section) return active;
+        const top = section.getBoundingClientRect().top;
+        return top <= 120 ? item.target : active;
+      }, NAV_ITEMS[0].target);
+
+      setActiveSection(current);
+    };
+
+    fn();
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
@@ -121,23 +147,37 @@ function Navbar() {
           </span>
         </div>
         <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-          {["Platform", "Mission", "Impact", "Vision"].map(item => (
-            <a key={item} href="#" style={{
-              color: "rgba(255,255,255,0.6)", fontSize: 13, fontFamily: "'Syne', sans-serif",
-              fontWeight: 500, textDecoration: "none", letterSpacing: "0.08em",
-              transition: "color 0.2s", textTransform: "uppercase"
+          {NAV_ITEMS.map(item => {
+            const isActive = activeSection === item.target;
+            return (
+            <button key={item.target} type="button" onClick={() => scrollToSection(item.target)} style={{
+              background: "transparent", border: "none", padding: "10px 0", position: "relative",
+              color: isActive ? "#00b4ff" : "rgba(255,255,255,0.6)", fontSize: 13, fontFamily: "'Syne', sans-serif",
+              fontWeight: 700, textDecoration: "none", letterSpacing: "0.08em",
+              transition: "color 0.2s", textTransform: "uppercase", cursor: "pointer"
             }}
-              onMouseEnter={e => e.target.style.color = "#00b4ff"}
-              onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}
-            >{item}</a>
-          ))}
-          <button style={{
+              onMouseEnter={e => e.currentTarget.style.color = "#00b4ff"}
+              onMouseLeave={e => e.currentTarget.style.color = isActive ? "#00b4ff" : "rgba(255,255,255,0.6)"}
+            >
+              {item.label}
+              <span style={{
+                position: "absolute", left: 0, right: 0, bottom: 0, height: 2,
+                background: "linear-gradient(90deg, transparent, #00b4ff, transparent)",
+                transform: isActive ? "scaleX(1)" : "scaleX(0)",
+                transition: "transform 0.25s ease",
+                boxShadow: isActive ? "0 0 12px rgba(0,180,255,0.8)" : "none"
+              }} />
+            </button>
+            );
+          })}
+          <button type="button" style={{
             background: "linear-gradient(135deg, #00b4ff, #0070ff)",
             border: "none", borderRadius: 8, padding: "9px 20px",
             color: "#fff", fontSize: 13, fontFamily: "'Syne', sans-serif",
             fontWeight: 600, cursor: "pointer", letterSpacing: "0.05em",
             boxShadow: "0 0 20px rgba(0,180,255,0.4)", transition: "all 0.2s"
           }}
+            onClick={() => scrollToSection("deploy")}
             onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = "0 0 30px rgba(0,180,255,0.6)"; }}
             onMouseLeave={e => { e.target.style.transform = "none"; e.target.style.boxShadow = "0 0 20px rgba(0,180,255,0.4)"; }}
           >Deploy Now</button>
@@ -374,7 +414,7 @@ function Hero() {
         display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center",
         animation: "slide-up 0.7s 0.3s ease both", marginBottom: 80
       }}>
-        <button style={{
+        <button onClick={() => scrollToSection("platform")} style={{
           background: "linear-gradient(135deg, #00b4ff 0%, #0057ff 100%)",
           border: "none", borderRadius: 10, padding: "15px 34px",
           color: "#fff", fontSize: 15, fontFamily: "'Syne', sans-serif",
@@ -385,7 +425,7 @@ function Hero() {
           onMouseEnter={e => { e.target.style.transform = "translateY(-3px)"; e.target.style.boxShadow = "0 0 50px rgba(0,180,255,0.7), inset 0 1px 0 rgba(255,255,255,0.2)"; }}
           onMouseLeave={e => { e.target.style.transform = "none"; e.target.style.boxShadow = "0 0 30px rgba(0,180,255,0.5), inset 0 1px 0 rgba(255,255,255,0.2)"; }}
         >Explore Platform</button>
-        <button style={{
+        <button onClick={() => scrollToSection("vision")} style={{
           background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.15)",
           borderRadius: 10, padding: "15px 34px",
           color: "#fff", fontSize: 15, fontFamily: "'Syne', sans-serif",
@@ -436,7 +476,7 @@ function About() {
     { step: "04", title: "Crisis Resolved", text: "Resilient communication powers faster rescue, smarter coordination, and ultimately, more lives saved.", color: "#ff6600" },
   ];
   return (
-    <section style={{ padding: "100px max(24px, calc((100% - 1100px)/2))", position: "relative" }}>
+    <section id="mission" style={{ padding: "100px max(24px, calc((100% - 1100px)/2))", position: "relative", scrollMarginTop: 90 }}>
       <div style={{ textAlign: "center", marginBottom: 64 }}>
         <div style={{
           display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
@@ -502,7 +542,7 @@ const CAPABILITIES = [
 
 function Capabilities() {
   return (
-    <section style={{ padding: "100px max(24px, calc((100% - 1100px)/2))", position: "relative" }}>
+    <section id="platform" style={{ padding: "100px max(24px, calc((100% - 1100px)/2))", position: "relative", scrollMarginTop: 90 }}>
       <style>{`
         .cap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         .cap-span-1 { grid-column: span 1; }
@@ -2178,7 +2218,7 @@ function Impact() {
     { value: "∞", label: "Scalable Coverage", sub: "from block to continent", color: "#00b4ff" },
   ];
   return (
-    <section style={{ padding: "80px max(24px, calc((100% - 1100px)/2))", position: "relative" }}>
+    <section id="impact" style={{ padding: "80px max(24px, calc((100% - 1100px)/2))", position: "relative", scrollMarginTop: 90 }}>
       <div style={{
         background: "rgba(0,180,255,0.03)", border: "1px solid rgba(0,180,255,0.1)",
         borderRadius: 28, padding: "60px 40px", backdropFilter: "blur(20px)",
@@ -2241,7 +2281,7 @@ function TrustFuture() {
     { icon: "⛰️", label: "Wildfire Command", desc: "Smoke-resistant coordination infrastructure" },
   ];
   return (
-    <section style={{ padding: "80px max(24px, calc((100% - 1100px)/2))" }}>
+    <section id="vision" style={{ padding: "80px max(24px, calc((100% - 1100px)/2))", scrollMarginTop: 90 }}>
       <div style={{ textAlign: "center", marginBottom: 56 }}>
         <div style={{
           display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
@@ -2301,7 +2341,7 @@ function Ticker() {
 // ─── Final CTA ─────────────────────────────────────────────────────────────────
 function FinalCTA() {
   return (
-    <section style={{ padding: "80px max(24px, calc((100% - 1000px)/2)) 120px", textAlign: "center", position: "relative" }}>
+    <section id="deploy" style={{ padding: "80px max(24px, calc((100% - 1000px)/2)) 120px", textAlign: "center", position: "relative", scrollMarginTop: 90 }}>
       {/* Large glow */}
       <div style={{
         position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
