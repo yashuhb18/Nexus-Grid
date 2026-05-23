@@ -116,13 +116,10 @@ function Particles() {
 
 // ─── Navbar ─────────────────────────────────────────────────────────────────
 function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("platform");
 
   useEffect(() => {
     const fn = () => {
-      setScrolled(window.scrollY > 40);
-
       const current = NAV_ITEMS.reduce((active, item) => {
         const section = document.getElementById(item.target);
         if (!section) return active;
@@ -141,9 +138,10 @@ function Navbar() {
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
       transition: "all 0.4s ease",
-      background: scrolled ? "rgba(4,6,10,0.92)" : "transparent",
-      backdropFilter: scrolled ? "blur(20px)" : "none",
-      borderBottom: scrolled ? "1px solid rgba(0,180,255,0.12)" : "none",
+      background: "linear-gradient(180deg, rgba(3,7,18,0.98), rgba(4,8,16,0.94))",
+      backdropFilter: "blur(20px)",
+      borderBottom: "1px solid rgba(0,180,255,0.16)",
+      boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
       padding: "0 max(24px, calc((100% - 1200px)/2))",
     }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 70 }}>
