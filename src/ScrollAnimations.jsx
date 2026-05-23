@@ -24,12 +24,14 @@ export function useInView(options = {}) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const thresh = options.threshold !== undefined ? options.threshold : 0.02;
+    const margin = options.rootMargin !== undefined ? options.rootMargin : "0px 0px -20px 0px";
     const obs = new IntersectionObserver(
       ([entry]) => {
         setInView(entry.isIntersecting);
         if (entry.isIntersecting) setHasBeenInView(true);
       },
-      { threshold: options.threshold || 0.1, rootMargin: options.rootMargin || "0px 0px -60px 0px" }
+      { threshold: thresh, rootMargin: margin }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -179,8 +181,8 @@ export function ScrollReveal({
   delay = 0,
   duration = 0.9,
   easing = "cubic-bezier(0.16, 1, 0.3, 1)",
-  threshold = 0.1,
-  rootMargin = "0px 0px -40px 0px",
+  threshold = 0.02,
+  rootMargin = "0px 0px -20px 0px",
   style = {},
   className = "",
   once = true,
@@ -214,8 +216,8 @@ export function StaggerContainer({
   baseDuration = 0.8,
   baseDelay = 0,
   easing = "cubic-bezier(0.16, 1, 0.3, 1)",
-  threshold = 0.08,
-  rootMargin = "0px 0px -30px 0px",
+  threshold = 0.02,
+  rootMargin = "0px 0px -20px 0px",
   style = {},
   className = "",
 }) {

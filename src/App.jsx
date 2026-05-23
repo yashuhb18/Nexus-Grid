@@ -206,11 +206,28 @@ function Navbar() {
 
 // ─── Hero ────────────────────────────────────────────────────────────────────
 function MeshActivationVisual({ progress }) {
-  const upperLift = -6 - progress * 34;
-  const lowerDrop = progress * 18;
-  const signalOpacity = 0.15 + progress * 0.85;
-  const pulseScale = 0.78 + progress * 0.34;
-  const nodeGlow = 0.35 + progress * 0.65;
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    let frame;
+    const tick = () => {
+      setTime(t => t + 0.02);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const breathe = Math.sin(time) * 0.5 + 0.5; // smooth 0 to 1 oscillation
+  
+  // Combine scroll progress with auto-breathing so it always moves and breathes dynamically on first page load!
+  const activePercent = Math.min(1.0, Math.max(progress, 0.38 + breathe * 0.32));
+
+  const upperLift = -6 - activePercent * 34;
+  const lowerDrop = activePercent * 18;
+  const signalOpacity = 0.45 + activePercent * 0.55; // baseline 45% opacity so signals are always highly visible and gorgeous!
+  const pulseScale = 0.8 + activePercent * 0.32;
+  const nodeGlow = 0.45 + activePercent * 0.55;
 
   return (
     <svg viewBox="0 0 380 322" style={{ width: "100%", height: "100%", overflow: "visible" }} aria-hidden="true">
@@ -682,7 +699,7 @@ function HowItWorks() {
       />
 
       {/* ═══ ANIMATION 1: Phone → ESP32 → ESP32 → Phone ═══ */}
-      <ScrollReveal animation="expandCenter" duration={1.2}>
+      <ScrollReveal animation="fadeUp" duration={1.0}>
       <div style={{
         background: "rgba(4,8,16,0.9)", border: "1px solid rgba(0,180,255,0.15)",
         borderRadius: 22, padding: "36px 24px 28px", marginBottom: 28,
@@ -1001,7 +1018,7 @@ function HowItWorks() {
       </ScrollReveal>
 
       {/* ═══ ANIMATION 2: Breadboard + OLED ↔ Breadboard + OLED ═══ */}
-      <ScrollReveal animation="expandCenter" duration={1.2} delay={0.1}>
+      <ScrollReveal animation="fadeUp" duration={1.0} delay={0.1}>
       <div style={{
         background: "rgba(4,8,16,0.9)", border: "1px solid rgba(255,100,0,0.15)",
         borderRadius: 22, padding: "36px 24px 28px",
