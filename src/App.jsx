@@ -1,4 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  SectionHeadingReveal,
+  ParallaxSection,
+  MagneticCard,
+  ScrollProgressBar,
+  SectionDivider,
+  AnimatedCounter,
+  TextReveal,
+  HorizontalReveal,
+  useInView,
+  useParallax,
+  useElementScrollRatio,
+} from "./ScrollAnimations";
 
 // ─── Animated Grid Background ──────────────────────────────────────────────
 function GridBackground() {
@@ -478,50 +493,42 @@ function About() {
   ];
   return (
     <section id="mission" style={{ padding: "100px max(24px, calc((100% - 1100px)/2))", position: "relative", scrollMarginTop: 90 }}>
-      <div style={{ textAlign: "center", marginBottom: 64 }}>
-        <div style={{
-          display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
-          color: "#ff6600", letterSpacing: "0.15em", textTransform: "uppercase",
-          marginBottom: 18, padding: "5px 14px",
-          background: "rgba(255,100,0,0.08)", border: "1px solid rgba(255,100,0,0.2)", borderRadius: 100
-        }}>Mission Brief</div>
-        <h2 style={{
-          fontFamily: "'Orbitron', monospace", fontSize: "clamp(28px,4vw,52px)",
-          fontWeight: 800, color: "#fff", marginBottom: 18, letterSpacing: "-0.02em"
-        }}>Why Nexus-Grid Exists</h2>
-        <p style={{
-          fontFamily: "'Syne', sans-serif", fontSize: 17, color: "rgba(255,255,255,0.5)",
-          maxWidth: 560, margin: "0 auto", lineHeight: 1.75
-        }}>
-          In disasters, communication collapses first. We rebuild awareness, trust, and coordination through resilient emergency infrastructure.
-        </p>
-      </div>
+      <SectionHeadingReveal
+        badge="Mission Brief"
+        title="Why Nexus-Grid Exists"
+        subtitle="In disasters, communication collapses first. We rebuild awareness, trust, and coordination through resilient emergency infrastructure."
+        badgeColor="#ff6600"
+      />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
         {items.map((item, i) => (
-          <div key={i} style={{
-            background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 18, padding: "32px 28px", backdropFilter: "blur(12px)",
-            position: "relative", overflow: "hidden", transition: "all 0.3s",
-          }}
-            onMouseEnter={e => { e.currentTarget.style.border = `1px solid ${item.color}40`; e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 20px 50px rgba(0,0,0,0.4), 0 0 30px ${item.color}15`; }}
-            onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(255,255,255,0.07)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
-          >
-            <div style={{
-              fontFamily: "'Orbitron', monospace", fontSize: 11, fontWeight: 700,
-              color: item.color, letterSpacing: "0.15em", marginBottom: 16, opacity: 0.8
-            }}>PHASE {item.step}</div>
-            <div style={{
-              width: 2, height: 40, background: `linear-gradient(${item.color}, transparent)`,
-              marginBottom: 20, borderRadius: 2
-            }} />
-            <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 12 }}>{item.title}</h3>
-            <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>{item.text}</p>
-            <div style={{
-              position: "absolute", top: 24, right: 24,
-              fontFamily: "'Orbitron', monospace", fontSize: 48, fontWeight: 900,
-              color: "rgba(255,255,255,0.03)", lineHeight: 1
-            }}>{item.step}</div>
-          </div>
+          <ScrollReveal key={i} animation="cardRise" delay={i * 0.15} duration={0.9}>
+            <MagneticCard
+              intensity={10}
+              style={{
+                background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 18, padding: "32px 28px",
+                backdropFilter: "blur(12px)",
+                position: "relative", overflow: "hidden",
+                height: "100%",
+              }}
+            >
+              <div style={{
+                fontFamily: "'Orbitron', monospace", fontSize: 11, fontWeight: 700,
+                color: item.color, letterSpacing: "0.15em", marginBottom: 16, opacity: 0.8
+              }}>PHASE {item.step}</div>
+              <div style={{
+                width: 2, height: 40, background: `linear-gradient(${item.color}, transparent)`,
+                marginBottom: 20, borderRadius: 2
+              }} />
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 12 }}>{item.title}</h3>
+              <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>{item.text}</p>
+              <div style={{
+                position: "absolute", top: 24, right: 24,
+                fontFamily: "'Orbitron', monospace", fontSize: 48, fontWeight: 900,
+                color: "rgba(255,255,255,0.03)", lineHeight: 1
+              }}>{item.step}</div>
+            </MagneticCard>
+          </ScrollReveal>
         ))}
       </div>
     </section>
@@ -557,56 +564,48 @@ function Capabilities() {
           .cap-span-1, .cap-span-2 { grid-column: span 1 !important; }
         }
       `}</style>
-      <div style={{ textAlign: "center", marginBottom: 64 }}>
-        <div style={{
-          display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
-          color: "#00b4ff", letterSpacing: "0.15em", textTransform: "uppercase",
-          marginBottom: 18, padding: "5px 14px",
-          background: "rgba(0,180,255,0.08)", border: "1px solid rgba(0,180,255,0.2)", borderRadius: 100
-        }}>Core Capabilities</div>
-        <h2 style={{
-          fontFamily: "'Orbitron', monospace", fontSize: "clamp(28px,4vw,52px)",
-          fontWeight: 800, color: "#fff", marginBottom: 18, letterSpacing: "-0.02em"
-        }}>Built for the Edge of Chaos</h2>
-        <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, color: "rgba(255,255,255,0.5)", maxWidth: 520, margin: "0 auto" }}>
-          Every capability engineered for the moments when nothing else works.
-        </p>
-      </div>
+      <SectionHeadingReveal
+        badge="Core Capabilities"
+        title="Built for the Edge of Chaos"
+        subtitle="Every capability engineered for the moments when nothing else works."
+        badgeColor="#00b4ff"
+      />
       <div className="cap-grid">
         {CAPABILITIES.map((cap, i) => (
-          <div key={i} className={cap.span === 2 ? "cap-span-2" : "cap-span-1"} style={{
-            background: "rgba(255,255,255,0.025)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 18, padding: "30px 28px",
-            backdropFilter: "blur(12px)", transition: "all 0.3s",
-            position: "relative", overflow: "hidden"
-          }}
-            onMouseEnter={e => {
-              e.currentTarget.style.border = `1px solid ${cap.accent}40`;
-              e.currentTarget.style.transform = "translateY(-5px)";
-              e.currentTarget.style.boxShadow = `0 20px 50px rgba(0,0,0,0.4), 0 0 40px ${cap.accent}18`;
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.border = "1px solid rgba(255,255,255,0.07)";
-              e.currentTarget.style.transform = "none";
-              e.currentTarget.style.boxShadow = "none";
-            }}
+          <ScrollReveal
+            key={i}
+            animation={i % 3 === 0 ? "tilt3D" : i % 3 === 1 ? "cardRise" : "flipIn"}
+            delay={i * 0.1}
+            duration={0.85}
+            className={cap.span === 2 ? "cap-span-2" : "cap-span-1"}
           >
-            <div style={{
-              width: 46, height: 46, borderRadius: 12,
-              background: `linear-gradient(135deg, ${cap.accent}22, ${cap.accent}08)`,
-              border: `1px solid ${cap.accent}30`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 20, marginBottom: 18, color: cap.accent
-            }}>{cap.icon}</div>
-            <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: 10 }}>{cap.title}</h3>
-            <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>{cap.desc}</p>
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
-              background: `linear-gradient(90deg, transparent, ${cap.accent}40, transparent)`,
-              opacity: 0
-            }} className="cap-line" />
-          </div>
+            <MagneticCard
+              intensity={8}
+              style={{
+                background: "rgba(255,255,255,0.025)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 18, padding: "30px 28px",
+                backdropFilter: "blur(12px)",
+                position: "relative", overflow: "hidden",
+                height: "100%",
+              }}
+            >
+              <div style={{
+                width: 46, height: 46, borderRadius: 12,
+                background: `linear-gradient(135deg, ${cap.accent}22, ${cap.accent}08)`,
+                border: `1px solid ${cap.accent}30`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 20, marginBottom: 18, color: cap.accent
+              }}>{cap.icon}</div>
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: 10 }}>{cap.title}</h3>
+              <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>{cap.desc}</p>
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
+                background: `linear-gradient(90deg, transparent, ${cap.accent}40, transparent)`,
+                opacity: 0
+              }} className="cap-line" />
+            </MagneticCard>
+          </ScrollReveal>
         ))}
       </div>
     </section>
@@ -675,26 +674,15 @@ function HowItWorks() {
         @keyframes hw-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
       `}</style>
 
-      <div style={{ textAlign: "center", marginBottom: 64 }}>
-        <div style={{
-          display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
-          color: "#ff6600", letterSpacing: "0.15em", textTransform: "uppercase",
-          marginBottom: 18, padding: "5px 14px",
-          background: "rgba(255,100,0,0.08)", border: "1px solid rgba(255,100,0,0.2)", borderRadius: 100
-        }}>Live Hardware Protocol</div>
-        <h2 style={{
-          fontFamily: "'Orbitron', monospace", fontSize: "clamp(28px,4vw,52px)",
-          fontWeight: 800, color: "#fff", marginBottom: 18, letterSpacing: "-0.02em"
-        }}>How Nexus-Grid Works</h2>
-        <p style={{
-          fontFamily: "'Syne', sans-serif", fontSize: 17, color: "rgba(255,255,255,0.5)",
-          maxWidth: 600, margin: "0 auto", lineHeight: 1.7
-        }}>
-          Real ESP32 hardware communicating through mesh protocol — from phone to phone, board to board.
-        </p>
-      </div>
+      <SectionHeadingReveal
+        badge="Live Hardware Protocol"
+        title="How Nexus-Grid Works"
+        subtitle="Real ESP32 hardware communicating through mesh protocol — from phone to phone, board to board."
+        badgeColor="#ff6600"
+      />
 
       {/* ═══ ANIMATION 1: Phone → ESP32 → ESP32 → Phone ═══ */}
+      <ScrollReveal animation="expandCenter" duration={1.2}>
       <div style={{
         background: "rgba(4,8,16,0.9)", border: "1px solid rgba(0,180,255,0.15)",
         borderRadius: 22, padding: "36px 24px 28px", marginBottom: 28,
@@ -1010,8 +998,10 @@ function HowItWorks() {
           </g>
         </svg>
       </div>
+      </ScrollReveal>
 
       {/* ═══ ANIMATION 2: Breadboard + OLED ↔ Breadboard + OLED ═══ */}
+      <ScrollReveal animation="expandCenter" duration={1.2} delay={0.1}>
       <div style={{
         background: "rgba(4,8,16,0.9)", border: "1px solid rgba(255,100,0,0.15)",
         borderRadius: 22, padding: "36px 24px 28px",
@@ -1507,6 +1497,7 @@ function HowItWorks() {
           </div>
         </div>
       </div>
+      </ScrollReveal>
     </section>
   );
 }
@@ -1677,24 +1668,15 @@ function Dashboard() {
         .dash-select option { background: #0a0e1a; color: #fff; }
         .dash-btn { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.08em; padding: 8px 16px; border-radius: 6px; border: 1px solid; cursor: pointer; transition: all 0.25s ease; text-transform: uppercase; }
       `}</style>
-      <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <div style={{
-          display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
-          color: "#00b4ff", letterSpacing: "0.15em", textTransform: "uppercase",
-          marginBottom: 18, padding: "5px 14px",
-          background: "rgba(0,180,255,0.08)", border: "1px solid rgba(0,180,255,0.2)", borderRadius: 100
-        }}>ESP32 Mesh Command</div>
-        <h2 style={{
-          fontFamily: "'Orbitron', monospace", fontSize: "clamp(28px,4vw,52px)",
-          fontWeight: 800, color: "#fff", marginBottom: 18, letterSpacing: "-0.02em"
-        }}>Nexus Control Center</h2>
-        <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, color: "rgba(255,255,255,0.5)", maxWidth: 620, margin: "0 auto", lineHeight: 1.7 }}>
-          Real-time ESP32 mesh network topology — 5 nodes connected via painlessMesh protocol.<br/>
-          <span style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>Click nodes to inspect · Simulate failures · Trace packet routes in real-time</span>
-        </p>
-      </div>
+      <SectionHeadingReveal
+        badge="ESP32 Mesh Command"
+        title="Nexus Control Center"
+        subtitle="Real-time ESP32 mesh network topology — 5 nodes connected via painlessMesh protocol. Click nodes to inspect, simulate failures, and trace packet routes in real-time."
+        badgeColor="#00b4ff"
+      />
 
       {/* Dashboard frame */}
+      <ScrollReveal animation="scaleUp" duration={1.1}>
       <div style={{
         background: "rgba(4,8,16,0.95)", border: "1px solid rgba(0,180,255,0.2)",
         borderRadius: 22, overflow: "hidden",
@@ -2205,6 +2187,7 @@ function Dashboard() {
           ))}
         </div>
       </div>
+      </ScrollReveal>
     </section>
   );
 }
@@ -2218,55 +2201,65 @@ function Impact() {
     { value: "48h", label: "Offline Operation", sub: "battery + solar capable", color: "#ff6600" },
     { value: "∞", label: "Scalable Coverage", sub: "from block to continent", color: "#00b4ff" },
   ];
+
   return (
     <section id="impact" style={{ padding: "80px max(24px, calc((100% - 1100px)/2))", position: "relative", scrollMarginTop: 90 }}>
-      <div style={{
-        background: "rgba(0,180,255,0.03)", border: "1px solid rgba(0,180,255,0.1)",
-        borderRadius: 28, padding: "60px 40px", backdropFilter: "blur(20px)",
-        position: "relative", overflow: "hidden"
-      }}>
-        {/* Glow */}
+      <ScrollReveal animation="fadeUp" duration={1.1}>
         <div style={{
-          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-          width: "60%", height: "60%",
-          background: "radial-gradient(ellipse, rgba(0,180,255,0.04) 0%, transparent 70%)",
-          pointerEvents: "none"
-        }} />
-        <div style={{ textAlign: "center", marginBottom: 56, position: "relative" }}>
+          background: "rgba(0,180,255,0.03)", border: "1px solid rgba(0,180,255,0.1)",
+          borderRadius: 28, padding: "60px 40px", backdropFilter: "blur(20px)",
+          position: "relative", overflow: "hidden"
+        }}>
+          {/* Glow */}
           <div style={{
-            display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
-            color: "#ff6600", letterSpacing: "0.15em", textTransform: "uppercase",
-            marginBottom: 18, padding: "5px 14px",
-            background: "rgba(255,100,0,0.08)", border: "1px solid rgba(255,100,0,0.2)", borderRadius: 100
-          }}>Humanitarian Impact</div>
-          <h2 style={{
-            fontFamily: "'Orbitron', monospace", fontSize: "clamp(28px,4vw,52px)",
-            fontWeight: 800, color: "#fff", letterSpacing: "-0.02em"
-          }}>Numbers That Matter</h2>
+            position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
+            width: "60%", height: "60%",
+            background: "radial-gradient(ellipse, rgba(0,180,255,0.04) 0%, transparent 70%)",
+            pointerEvents: "none"
+          }} />
+          
+          <SectionHeadingReveal
+            badge="Humanitarian Impact"
+            title="Numbers That Matter"
+            badgeColor="#ff6600"
+          />
+
+          <StaggerContainer
+            animation="cardRise"
+            staggerDelay={0.1}
+            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 24, position: "relative" }}
+          >
+            {stats.map((s, i) => {
+              const isInf = s.value === "∞";
+              const num = isInf ? "∞" : parseFloat(s.value);
+              const suf = isInf ? "" : s.value.replace(num.toString(), "");
+              
+              return (
+                <div key={i} style={{
+                  textAlign: "center", padding: "30px 20px",
+                  background: "rgba(255,255,255,0.03)", borderRadius: 18,
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  transition: "all 0.3s"
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = `rgba(${s.color === "#ff6600" ? "255,100,0" : s.color === "#00b4ff" ? "0,180,255" : "0,230,118"},0.06)`; e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 20px 40px rgba(0,0,0,0.4), 0 0 30px ${s.color}20`; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
+                >
+                  <div style={{
+                    fontFamily: "'Orbitron', monospace", fontSize: "clamp(36px,4vw,52px)",
+                    fontWeight: 900, color: s.color,
+                    marginBottom: 8,
+                    textShadow: `0 0 30px ${s.color}80`
+                  }}>
+                    <AnimatedCounter value={num} suffix={suf} color={s.color} />
+                  </div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 600, color: "#fff", marginBottom: 6 }}>{s.label}</div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{s.sub}</div>
+                </div>
+              );
+            })}
+          </StaggerContainer>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 24, position: "relative" }}>
-          {stats.map((s, i) => (
-            <div key={i} style={{
-              textAlign: "center", padding: "30px 20px",
-              background: "rgba(255,255,255,0.03)", borderRadius: 18,
-              border: "1px solid rgba(255,255,255,0.06)",
-              transition: "all 0.3s"
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = `rgba(${s.color === "#ff6600" ? "255,100,0" : s.color === "#00b4ff" ? "0,180,255" : "0,230,118"},0.06)`; e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 20px 40px rgba(0,0,0,0.4), 0 0 30px ${s.color}20`; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
-            >
-              <div style={{
-                fontFamily: "'Orbitron', monospace", fontSize: "clamp(36px,4vw,52px)",
-                fontWeight: 900, color: s.color,
-                marginBottom: 8,
-                textShadow: `0 0 30px ${s.color}80`
-              }}>{s.value}</div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 600, color: "#fff", marginBottom: 6 }}>{s.label}</div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{s.sub}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }
@@ -2283,40 +2276,38 @@ function TrustFuture() {
   ];
   return (
     <section id="vision" style={{ padding: "80px max(24px, calc((100% - 1100px)/2))", scrollMarginTop: 90 }}>
-      <div style={{ textAlign: "center", marginBottom: 56 }}>
-        <div style={{
-          display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
-          color: "#00b4ff", letterSpacing: "0.15em", textTransform: "uppercase",
-          marginBottom: 18, padding: "5px 14px",
-          background: "rgba(0,180,255,0.08)", border: "1px solid rgba(0,180,255,0.2)", borderRadius: 100
-        }}>Deployment Scenarios</div>
-        <h2 style={{
-          fontFamily: "'Orbitron', monospace", fontSize: "clamp(28px,4vw,52px)",
-          fontWeight: 800, color: "#fff", marginBottom: 18, letterSpacing: "-0.02em"
-        }}>Built for Every Crisis</h2>
-        <p style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, color: "rgba(255,255,255,0.5)", maxWidth: 540, margin: "0 auto" }}>
-          From megacities to mountain rescues — Nexus-Grid deploys wherever communication matters most.
-        </p>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-        {deployments.map((d, i) => (
-          <div key={i} style={{
-            display: "flex", alignItems: "flex-start", gap: 16,
-            background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 16, padding: "24px 22px",
-            backdropFilter: "blur(10px)", transition: "all 0.3s"
-          }}
-            onMouseEnter={e => { e.currentTarget.style.border = "1px solid rgba(0,180,255,0.3)"; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 16px 40px rgba(0,0,0,0.4)"; }}
-            onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(255,255,255,0.07)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
-          >
-            <div style={{ fontSize: 28, flexShrink: 0, lineHeight: 1 }}>{d.icon}</div>
-            <div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 6 }}>{d.label}</div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>{d.desc}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <ScrollReveal animation="fadeUp" duration={1.1}>
+        <SectionHeadingReveal
+          badge="Deployment Scenarios"
+          title="Built for Every Crisis"
+          subtitle="From megacities to mountain rescues — Nexus-Grid deploys wherever communication matters most."
+          badgeColor="#00b4ff"
+        />
+        
+        <StaggerContainer
+          animation="tilt3D"
+          staggerDelay={0.08}
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}
+        >
+          {deployments.map((d, i) => (
+            <MagneticCard key={i} style={{ borderRadius: 16 }}>
+              <div style={{
+                display: "flex", alignItems: "flex-start", gap: 16,
+                background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 16, padding: "24px 22px",
+                backdropFilter: "blur(10px)", transition: "all 0.3s",
+                boxSizing: "border-box", height: "100%"
+              }}>
+                <div style={{ fontSize: 28, flexShrink: 0, lineHeight: 1 }}>{d.icon}</div>
+                <div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 6 }}>{d.label}</div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>{d.desc}</div>
+                </div>
+              </div>
+            </MagneticCard>
+          ))}
+        </StaggerContainer>
+      </ScrollReveal>
     </section>
   );
 }
@@ -2350,41 +2341,59 @@ function FinalCTA() {
         background: "radial-gradient(ellipse, rgba(0,100,255,0.08) 0%, rgba(255,80,0,0.04) 50%, transparent 70%)",
         pointerEvents: "none"
       }} />
-      <div style={{
-        display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
-        color: "#ff6600", letterSpacing: "0.15em", textTransform: "uppercase",
-        marginBottom: 24, padding: "5px 14px",
-        background: "rgba(255,100,0,0.08)", border: "1px solid rgba(255,100,0,0.2)", borderRadius: 100
-      }}>Deploy Nexus-Grid</div>
-      <h2 style={{
-        fontFamily: "'Orbitron', monospace", fontSize: "clamp(32px,5vw,72px)",
-        fontWeight: 900, color: "#fff", marginBottom: 24,
-        lineHeight: 1.05, letterSpacing: "-0.02em"
-      }}>
-        Build Resilience<br />
-        <span style={{
-          background: "linear-gradient(90deg, #ff6600, #00b4ff)",
-          backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
-        }}>Before Disaster Strikes.</span>
-      </h2>
-      <p style={{
-        fontFamily: "'Syne', sans-serif", fontSize: 19, color: "rgba(255,255,255,0.5)",
-        maxWidth: 500, margin: "0 auto 48px", lineHeight: 1.7
-      }}>
-        The window for preparation is closing. Ensure your team stays connected when the grid goes down.
-      </p>
-      <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-        <button style={{
-          background: "linear-gradient(135deg, #ff6600, #ff4000)", border: "none", borderRadius: 12, padding: "18px 40px",
-          color: "#fff", fontSize: 16, fontFamily: "'Syne', sans-serif", fontWeight: 700, cursor: "pointer",
-          boxShadow: "0 0 30px rgba(255,100,0,0.5)", transition: "all 0.3s"
-        }}>Get Deployment Kit</button>
-        <button style={{
-          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "18px 40px",
-          color: "#fff", fontSize: 16, fontFamily: "'Syne', sans-serif", fontWeight: 600, cursor: "pointer",
-          backdropFilter: "blur(10px)", transition: "all 0.3s"
-        }}>Contact Sales</button>
-      </div>
+      
+      <ScrollReveal animation="fadeUp" delay={0} duration={0.8}>
+        <div style={{
+          display: "inline-block", fontFamily: "'Space Mono', monospace", fontSize: 11,
+          color: "#ff6600", letterSpacing: "0.15em", textTransform: "uppercase",
+          marginBottom: 24, padding: "5px 14px",
+          background: "rgba(255,100,0,0.08)", border: "1px solid rgba(255,100,0,0.2)", borderRadius: 100
+        }}>Deploy Nexus-Grid</div>
+      </ScrollReveal>
+
+      <ScrollReveal animation="fadeUp" delay={0.15} duration={0.8}>
+        <h2 style={{
+          fontFamily: "'Orbitron', monospace", fontSize: "clamp(32px,5vw,72px)",
+          fontWeight: 900, color: "#fff", marginBottom: 24,
+          lineHeight: 1.05, letterSpacing: "-0.02em"
+        }}>
+          Build Resilience<br />
+          <span style={{
+            background: "linear-gradient(90deg, #ff6600, #00b4ff)",
+            backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
+          }}>Before Disaster Strikes.</span>
+        </h2>
+      </ScrollReveal>
+
+      <ScrollReveal animation="fadeUp" delay={0.3} duration={0.8}>
+        <p style={{
+          fontFamily: "'Syne', sans-serif", fontSize: 19, color: "rgba(255,255,255,0.5)",
+          maxWidth: 500, margin: "0 auto 48px", lineHeight: 1.7
+        }}>
+          The window for preparation is closing. Ensure your team stays connected when the grid goes down.
+        </p>
+      </ScrollReveal>
+
+      <ScrollReveal animation="scaleUp" delay={0.45} duration={0.8}>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+          <button style={{
+            background: "linear-gradient(135deg, #ff6600, #ff4000)", border: "none", borderRadius: 12, padding: "18px 40px",
+            color: "#fff", fontSize: 16, fontFamily: "'Syne', sans-serif", fontWeight: 700, cursor: "pointer",
+            boxShadow: "0 0 30px rgba(255,100,0,0.5)", transition: "all 0.3s"
+          }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 0 45px rgba(255,100,0,0.7)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,100,0,0.5)"; }}
+          >Get Deployment Kit</button>
+          <button style={{
+            background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "18px 40px",
+            color: "#fff", fontSize: 16, fontFamily: "'Syne', sans-serif", fontWeight: 600, cursor: "pointer",
+            backdropFilter: "blur(10px)", transition: "all 0.3s"
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.09)"; e.currentTarget.style.transform = "translateY(-3px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.transform = "none"; }}
+          >Contact Sales</button>
+        </div>
+      </ScrollReveal>
     </section>
   );
 }
@@ -2404,16 +2413,23 @@ function Footer() {
 export default function App() {
   return (
     <div style={{ backgroundColor: "#04060a", minHeight: "100vh", color: "#fff", overflowX: "hidden" }}>
+      <ScrollProgressBar />
       <GridBackground />
       <Navbar />
       <Hero />
       <Ticker />
       <About />
+      <SectionDivider color="#00b4ff" />
       <Capabilities />
+      <SectionDivider color="#ff6600" />
       <HowItWorks />
+      <SectionDivider color="#00b4ff" />
       <Dashboard />
+      <SectionDivider color="#ff6600" />
       <Impact />
+      <SectionDivider color="#00b4ff" />
       <TrustFuture />
+      <SectionDivider color="#ff6600" />
       <FinalCTA />
       <Footer />
     </div>
